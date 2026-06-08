@@ -53,7 +53,8 @@ class FishDataset(Dataset):
         root_dir,
         metadata_csv,
         indices=None,
-        patch_size=None
+        patch_size=None,
+        transforms = None
     ):
 
         self.root_dir = Path(root_dir)
@@ -70,6 +71,8 @@ class FishDataset(Dataset):
             self.patch_sampler = PatchSampler(
             patch_size=patch_size
         )
+            
+        self.transforms = transforms
 
     def __len__(self):
         return len(self.meta)
@@ -131,6 +134,8 @@ class FishDataset(Dataset):
             masks,
             axis=0
         )
+        
+#============= Patch sampler for extracting patches ==========================
 
         image = image.transpose(2, 0, 1)
         
@@ -140,6 +145,20 @@ class FishDataset(Dataset):
                 image,
                 masks
                 )
+#================= Transforms =================================================            
+            
+        if self.transforms is not None:
+
+                transformed = self.transforms(
+                image=image.transpose(1, 2, 0),
+                mask=masks.transpose(1, 2, 0)
+                )
+
+                image = transformed["image"]
+                masks = transformed["mask"]
+
+                image = image.transpose(2, 0, 1)
+                masks = masks.transpose(2, 0, 1)
             
         image = torch.from_numpy(
             image.astype(np.float32)
@@ -154,8 +173,8 @@ class FishDataset(Dataset):
         return {
             "image": image,
             "mask": masks,
-            "image_id": row["image_id"],
-            "fish_id": row["fish_id"],
-            "genotype": row["genotype"],
-            "quality": row["quality"]
+            "image_id": str(row["image_id"]),
+            "fish_id": str(row["fish_id"]),
+            "genotype": str(row["genotype"]),
+            "quality": int(row["quality"])
             }
