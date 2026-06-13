@@ -1,36 +1,18 @@
-# Python
 __pycache__/
-*.py[cod]
-*.egg-info/
-.eggs/
-dist/
-build/
+*.pyc
 
-# Virtual environments
-.venv/
-venv/
-env/
+outputs/
+logs/
+runs/
 
-# Spyder
-.spyproject/
-
-# VS Code
-.vscode/
-
-# Jupyter
 .ipynb_checkpoints/
 
-# Data/models (optional — if files are large)
-*.csv
-*.pkl
-*.h5
+.DS_Store
+
+venv/
+fish-bone/
+
 *.pt
 *.pth
 
-# OS
-.DS_Store
-Thumbs.db
-
-# images
-*.png
-processed_images/
+ventral/
