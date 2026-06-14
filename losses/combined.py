@@ -1,29 +1,30 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Created on Tue Jun  9 10:56:20 2026
-
-@author: navdeepkaushish
-"""
 
 import torch.nn as nn
 
 from losses.dice import DiceLoss
+from losses.focal import FocalLoss
 
 
-class CombinedLoss(
-    nn.Module
-):
+class CombinedLoss(nn.Module):
 
-    def __init__(self):
-
+    def __init__(
+        self,
+        dice_weight=0.5,
+        focal_weight=0.5
+    ):
         super().__init__()
 
-        self.bce = (
-            nn.BCEWithLogitsLoss()
+        self.dice = DiceLoss()
+
+        self.focal = FocalLoss(
+            alpha=0.25,
+            gamma=2.0
         )
 
-        self.dice = DiceLoss()
+        self.dice_weight = dice_weight
+        self.focal_weight = focal_weight
 
     def forward(
         self,
@@ -31,20 +32,20 @@ class CombinedLoss(
         targets
     ):
 
-        bce = self.bce(
-            logits,
-            targets
-        )
-
         dice = self.dice(
             logits,
             targets
         )
 
+        focal = self.focal(
+            logits,
+            targets
+        )
+
         loss = (
-            0.5 * bce
+            self.dice_weight * dice
             +
-            0.5 * dice
+            self.focal_weight * focal
         )
 
         return loss

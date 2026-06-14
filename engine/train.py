@@ -103,11 +103,11 @@ def main():
 
     optimizer = torch.optim.AdamW(
         model.parameters(),
-        lr=1e-4,
+        lr=3e-4,
         weight_decay=1e-4
     )
 
-    epochs = 10
+    epochs = 1
 
     scheduler = CosineAnnealingLR(
         optimizer,

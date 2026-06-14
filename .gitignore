@@ -16,3 +16,8 @@ fish-bone/
 *.pth
 
 ventral/
+ventral.zipventral/
+ventral.zip
+outputs/
+*.pt
+*.pth
