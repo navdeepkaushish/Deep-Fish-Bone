@@ -1,79 +1,128 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+import argparse
+import json
+import shutil
 from pathlib import Path
 
 import torch
-from torch.utils.tensorboard import SummaryWriter
 from torch.optim.lr_scheduler import CosineAnnealingLR
+from torch.utils.tensorboard import SummaryWriter
 
-from utils.seed import seed_everything
-from utils.save_metrics import save_metrics_csv
-
+from configs.structure_names import STRUCTURES
 from datasets.metadata import Metadata
 from datasets.splitter import FishSplitter
-
 from engine.dataloaders import (
     build_dataloaders,
     build_full_valid_loader
 )
-
 from engine.train_one_epoch import train_one_epoch
 from engine.validate import validate
 from engine.validate_full import validate_full_image
-
-from models.unetpp import build_model
 from losses.combined import CombinedLoss
+from models.unetpp import build_model
+from utils.save_metrics import save_metrics_csv
+from utils.seed import seed_everything
 
-from configs.structure_names import STRUCTURES
+
+def load_config(config_path):
+    with open(config_path, "r") as f:
+        return json.load(f)
 
 
-ROOT_DIR = "ventral"
-METADATA_CSV = "metadata/metadata.csv"
+def save_json(data, path):
+    with open(path, "w") as f:
+        json.dump(data, f, indent=4)
+
+
+def save_checkpoint(
+    path,
+    fold,
+    epoch,
+    model,
+    optimizer,
+    scheduler,
+    checkpoint_score,
+    patch_mean_dice,
+    full_mean_dice
+):
+    torch.save(
+        {
+            "fold": fold,
+            "epoch": epoch,
+            "model_state_dict": model.state_dict(),
+            "optimizer_state_dict": optimizer.state_dict(),
+            "scheduler_state_dict": scheduler.state_dict(),
+            "checkpoint_score": checkpoint_score,
+            "patch_mean_dice": patch_mean_dice,
+            "full_mean_dice": full_mean_dice
+        },
+        path
+    )
+
+
+def archive_fold(output_dir):
+    output_dir = Path(output_dir)
+
+    archive_path = shutil.make_archive(
+        base_name=str(output_dir),
+        format="gztar",
+        root_dir=output_dir.parent,
+        base_dir=output_dir.name
+    )
+
+    print(f"Archived fold: {archive_path}")
+
+    return archive_path
 
 
 def run_fold(
     fold,
     train_idx,
     valid_idx,
-    epochs=100,
-    batch_size=2,
-    num_workers=6,
-    full_valid_workers=4,
-    lr=3e-4,
-    output_root="outputs_cv_focal"
+    cfg
 ):
+    output_root = Path(cfg["output_root"])
+    output_dir = output_root / f"fold_{fold}"
+    checkpoint_dir = output_dir / "checkpoints"
 
-    output_dir = Path(output_root) / f"fold_{fold}"
     output_dir.mkdir(parents=True, exist_ok=True)
+    checkpoint_dir.mkdir(parents=True, exist_ok=True)
+
+    save_json(
+        cfg,
+        output_dir / "config_used.json"
+    )
 
     device = torch.device(
         "cuda" if torch.cuda.is_available() else "cpu"
     )
 
     print("\n" + "=" * 70)
-    print(f"Starting Fold {fold}")
-    print(f"Output directory: {output_dir}")
+    print(f"Experiment: {cfg['experiment_name']}")
+    print(f"Fold: {fold}")
+    print(f"Output: {output_dir}")
     print(f"Device: {device}")
     print("=" * 70)
 
     train_loader, valid_loader = build_dataloaders(
-        root_dir=ROOT_DIR,
-        metadata_csv=METADATA_CSV,
+        root_dir=cfg["root_dir"],
+        metadata_csv=cfg["metadata_csv"],
         train_idx=train_idx,
         valid_idx=valid_idx,
-        batch_size=batch_size,
-        patch_size=512,
-        resize_to=(966, 1288),
-        num_workers=num_workers
+        batch_size=cfg["batch_size"],
+        patch_size=cfg["patch_size"],
+        resize_to=tuple(cfg["resize_to"]),
+        num_workers=cfg["num_workers"]
     )
 
     full_valid_loader = build_full_valid_loader(
-        root_dir=ROOT_DIR,
-        metadata_csv=METADATA_CSV,
+        root_dir=cfg["root_dir"],
+        metadata_csv=cfg["metadata_csv"],
         valid_idx=valid_idx,
-        resize_to=(966, 1288),
-        num_workers=full_valid_workers
+        resize_to=tuple(cfg["resize_to"]),
+        num_workers=cfg["full_valid_workers"]
     )
 
     model = build_model().to(device)
@@ -82,13 +131,13 @@ def run_fold(
 
     optimizer = torch.optim.AdamW(
         model.parameters(),
-        lr=lr,
-        weight_decay=1e-4
+        lr=cfg["learning_rate"],
+        weight_decay=cfg["weight_decay"]
     )
 
     scheduler = CosineAnnealingLR(
         optimizer,
-        T_max=epochs,
+        T_max=cfg["epochs"],
         eta_min=1e-6
     )
 
@@ -101,15 +150,15 @@ def run_fold(
         str(output_dir / "tensorboard")
     )
 
-    checkpoint_dir = output_dir / "checkpoints"
-    checkpoint_dir.mkdir(parents=True, exist_ok=True)
-
     best_score = 0.0
+    best_epoch = -1
 
-    for epoch in range(epochs):
+    for epoch in range(cfg["epochs"]):
 
         print("\n" + "=" * 60)
-        print(f"Fold {fold} | Epoch {epoch + 1}/{epochs}")
+        print(
+            f"Fold {fold} | Epoch {epoch + 1}/{cfg['epochs']}"
+        )
         print("=" * 60)
 
         if device.type == "cuda":
@@ -137,7 +186,12 @@ def run_fold(
             epoch=epoch
         )
 
-        if epoch == 0 or (epoch + 1) % 5 == 0:
+        should_run_full_validation = (
+            epoch == 0
+            or (epoch + 1) % cfg["full_validation_every"] == 0
+        )
+
+        if should_run_full_validation:
 
             (
                 full_mean_dice,
@@ -148,9 +202,9 @@ def run_fold(
                 loader=full_valid_loader,
                 device=device,
                 epoch=epoch,
-                patch_size=512,
-                stride=256,
-                threshold=0.5
+                patch_size=cfg["patch_size"],
+                stride=cfg["stride"],
+                threshold=cfg["threshold"]
             )
 
         else:
@@ -161,6 +215,9 @@ def run_fold(
 
         scheduler.step()
 
+        lr = optimizer.param_groups[0]["lr"]
+
+        print()
         print(f"Train Loss:      {train_loss:.4f}")
         print(f"Patch Val Loss:  {patch_val_loss:.4f}")
         print(f"Patch Dice:      {patch_mean_dice:.4f}")
@@ -168,30 +225,64 @@ def run_fold(
         if full_mean_dice is not None:
             print(f"Full Dice:       {full_mean_dice:.4f}")
         else:
-            print("Full Dice:       not evaluated this epoch")
+            print("Full Dice:       not evaluated")
 
-        print(f"LR:              {optimizer.param_groups[0]['lr']:.8f}")
+        print(f"LR:              {lr:.8f}")
+        print(
+            f"Valid Structures:"
+            f" {sum(c > 0 for c in patch_class_counts)}/25"
+        )
 
         if device.type == "cuda":
-            peak_mem = torch.cuda.max_memory_allocated() / 1024**3
+            peak_mem = (
+                torch.cuda.max_memory_allocated()
+                / 1024**3
+            )
             print(f"Peak GPU Memory: {peak_mem:.2f} GB")
+        else:
+            peak_mem = None
 
-        writer.add_scalar("loss/train", train_loss, epoch)
-        writer.add_scalar("loss/patch_val", patch_val_loss, epoch)
-        writer.add_scalar("dice/patch_val", patch_mean_dice, epoch)
-        writer.add_scalar("lr", optimizer.param_groups[0]["lr"], epoch)
+        writer.add_scalar(
+            "loss/train",
+            train_loss,
+            epoch
+        )
+
+        writer.add_scalar(
+            "loss/patch_val",
+            patch_val_loss,
+            epoch
+        )
+
+        writer.add_scalar(
+            "dice/patch_val",
+            patch_mean_dice,
+            epoch
+        )
+
+        writer.add_scalar(
+            "lr",
+            lr,
+            epoch
+        )
 
         if full_mean_dice is not None:
-            writer.add_scalar("dice/full_val", full_mean_dice, epoch)
+            writer.add_scalar(
+                "dice/full_val",
+                full_mean_dice,
+                epoch
+            )
 
         metrics = {
+            "experiment_name": cfg["experiment_name"],
             "fold": fold,
             "epoch": epoch + 1,
             "train_loss": train_loss,
             "patch_val_loss": patch_val_loss,
             "patch_mean_dice": patch_mean_dice,
             "full_mean_dice": full_mean_dice,
-            "lr": optimizer.param_groups[0]["lr"]
+            "lr": lr,
+            "peak_gpu_memory_gb": peak_mem
         }
 
         for name, score, count in zip(
@@ -226,76 +317,142 @@ def run_fold(
         if checkpoint_score > best_score:
 
             best_score = checkpoint_score
+            best_epoch = epoch + 1
 
-            torch.save(
-                {
-                    "fold": fold,
-                    "epoch": epoch,
-                    "model_state_dict": model.state_dict(),
-                    "optimizer_state_dict": optimizer.state_dict(),
-                    "scheduler_state_dict": scheduler.state_dict(),
-                    "checkpoint_score": checkpoint_score,
-                    "patch_mean_dice": patch_mean_dice,
-                    "full_mean_dice": full_mean_dice
-                },
-                checkpoint_dir / "best_model.pt"
+            save_checkpoint(
+                path=checkpoint_dir / "best_model.pt",
+                fold=fold,
+                epoch=epoch,
+                model=model,
+                optimizer=optimizer,
+                scheduler=scheduler,
+                checkpoint_score=checkpoint_score,
+                patch_mean_dice=patch_mean_dice,
+                full_mean_dice=full_mean_dice
             )
 
-            print(f"Saved best model: {checkpoint_score:.4f}")
+            print(
+                f"Saved best model: "
+                f"{checkpoint_score:.4f}"
+            )
 
-        if (epoch + 1) % 5 == 0:
+        if (epoch + 1) % cfg["checkpoint_every"] == 0:
 
-            torch.save(
-                {
-                    "fold": fold,
-                    "epoch": epoch,
-                    "model_state_dict": model.state_dict(),
-                    "optimizer_state_dict": optimizer.state_dict(),
-                    "scheduler_state_dict": scheduler.state_dict(),
-                    "checkpoint_score": checkpoint_score,
-                    "patch_mean_dice": patch_mean_dice,
-                    "full_mean_dice": full_mean_dice
-                },
-                checkpoint_dir / f"checkpoint_epoch_{epoch + 1:03d}.pt"
+            save_checkpoint(
+                path=checkpoint_dir
+                / f"checkpoint_epoch_{epoch + 1:03d}.pt",
+                fold=fold,
+                epoch=epoch,
+                model=model,
+                optimizer=optimizer,
+                scheduler=scheduler,
+                checkpoint_score=checkpoint_score,
+                patch_mean_dice=patch_mean_dice,
+                full_mean_dice=full_mean_dice
             )
 
     writer.close()
 
-    return best_score
+    fold_summary = {
+        "fold": fold,
+        "best_score": best_score,
+        "best_epoch": best_epoch
+    }
+
+    save_json(
+        fold_summary,
+        output_dir / "fold_summary.json"
+    )
+
+    archive_fold(
+        output_dir
+    )
+
+    return fold_summary
 
 
 def main():
 
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument(
+        "--config",
+        type=str,
+        default="configs/focal_cv.json"
+    )
+
+    args = parser.parse_args()
+
+    cfg = load_config(
+        args.config
+    )
+
     seed_everything(42)
 
-    meta = Metadata(METADATA_CSV)
+    output_root = Path(
+        cfg["output_root"]
+    )
+
+    output_root.mkdir(
+        parents=True,
+        exist_ok=True
+    )
+
+    save_json(
+        cfg,
+        output_root / "config_used.json"
+    )
+
+    meta = Metadata(
+        cfg["metadata_csv"]
+    )
+
     df = meta.dataframe()
 
-    splitter = FishSplitter(n_splits=5)
+    splitter = FishSplitter(
+        n_splits=cfg["n_splits"]
+    )
 
-    all_scores = []
+    summaries = []
 
     for fold, train_idx, valid_idx in splitter.split(df):
 
-        score = run_fold(
+        summary = run_fold(
             fold=fold,
             train_idx=train_idx,
             valid_idx=valid_idx,
-            epochs=100,
-            batch_size=2,
-            num_workers=6,
-            full_valid_workers=4,
-            lr=3e-4,
-            output_root="outputs_cv_focal"
+            cfg=cfg
         )
 
-        all_scores.append(score)
+        summaries.append(
+            summary
+        )
+
+        save_json(
+            summaries,
+            output_root / "cv_summary.json"
+        )
+
+    scores = [
+        item["best_score"]
+        for item in summaries
+    ]
+
+    final_summary = {
+        "experiment_name": cfg["experiment_name"],
+        "fold_scores": scores,
+        "mean_score": sum(scores) / len(scores),
+        "fold_summaries": summaries
+    }
+
+    save_json(
+        final_summary,
+        output_root / "final_summary.json"
+    )
 
     print("\nCross-validation finished")
-    print("Fold scores:", all_scores)
-    print("Mean score:", sum(all_scores) / len(all_scores))
+    print(final_summary)
 
 
 if __name__ == "__main__":
-
     main()

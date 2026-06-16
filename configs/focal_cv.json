@@ -1,0 +1,19 @@
+{
+  "experiment_name": "Focal_Dice_5Fold",
+  "root_dir": "ventral",
+  "metadata_csv": "metadata/metadata.csv",
+  "output_root": "outputs_cv_focal",
+  "n_splits": 5,
+  "epochs": 100,
+  "batch_size": 2,
+  "num_workers": 6,
+  "full_valid_workers": 4,
+  "learning_rate": 0.0003,
+  "weight_decay": 0.0001,
+  "resize_to": [966, 1288],
+  "patch_size": 512,
+  "stride": 256,
+  "threshold": 0.5,
+  "full_validation_every": 5,
+  "checkpoint_every": 5
+}
