@@ -11,17 +11,24 @@ from torch.optim.lr_scheduler import CosineAnnealingLR
 from torch.utils.tensorboard import SummaryWriter
 
 from configs.structure_names import STRUCTURES
+
 from datasets.metadata import Metadata
 from datasets.splitter import FishSplitter
+
 from engine.dataloaders import (
     build_dataloaders,
     build_full_valid_loader
 )
+
 from engine.train_one_epoch import train_one_epoch
 from engine.validate import validate
 from engine.validate_full import validate_full_image
+
 from losses.combined import CombinedLoss
+from losses.bce_dice import BCEDiceLoss
+
 from models.unetpp import build_model
+
 from utils.save_metrics import save_metrics_csv
 from utils.seed import seed_everything
 
@@ -34,6 +41,18 @@ def load_config(config_path):
 def save_json(data, path):
     with open(path, "w") as f:
         json.dump(data, f, indent=4)
+
+
+def build_loss(cfg):
+    loss_name = cfg.get("loss_name", "focal_dice")
+
+    if loss_name == "focal_dice":
+        return CombinedLoss()
+
+    if loss_name == "bce_dice":
+        return BCEDiceLoss()
+
+    raise ValueError(f"Unknown loss_name: {loss_name}")
 
 
 def save_checkpoint(
@@ -77,6 +96,23 @@ def archive_fold(output_dir):
     return archive_path
 
 
+def fold_is_complete(output_dir):
+    output_dir = Path(output_dir)
+
+    required_files = [
+        output_dir / "fold_summary.json",
+        output_dir / "metrics.csv",
+        output_dir / "checkpoints" / "best_model.pt"
+    ]
+
+    return all(path.exists() for path in required_files)
+
+
+def load_fold_summary(output_dir):
+    with open(Path(output_dir) / "fold_summary.json", "r") as f:
+        return json.load(f)
+
+
 def run_fold(
     fold,
     train_idx,
@@ -90,10 +126,7 @@ def run_fold(
     output_dir.mkdir(parents=True, exist_ok=True)
     checkpoint_dir.mkdir(parents=True, exist_ok=True)
 
-    save_json(
-        cfg,
-        output_dir / "config_used.json"
-    )
+    save_json(cfg, output_dir / "config_used.json")
 
     device = torch.device(
         "cuda" if torch.cuda.is_available() else "cpu"
@@ -101,6 +134,7 @@ def run_fold(
 
     print("\n" + "=" * 70)
     print(f"Experiment: {cfg['experiment_name']}")
+    print(f"Loss: {cfg.get('loss_name', 'unknown')}")
     print(f"Fold: {fold}")
     print(f"Output: {output_dir}")
     print(f"Device: {device}")
@@ -127,7 +161,7 @@ def run_fold(
 
     model = build_model().to(device)
 
-    criterion = CombinedLoss()
+    criterion = build_loss(cfg)
 
     optimizer = torch.optim.AdamW(
         model.parameters(),
@@ -146,9 +180,7 @@ def run_fold(
         enabled=device.type == "cuda"
     )
 
-    writer = SummaryWriter(
-        str(output_dir / "tensorboard")
-    )
+    writer = SummaryWriter(str(output_dir / "tensorboard"))
 
     best_score = 0.0
     best_epoch = -1
@@ -156,9 +188,7 @@ def run_fold(
     for epoch in range(cfg["epochs"]):
 
         print("\n" + "=" * 60)
-        print(
-            f"Fold {fold} | Epoch {epoch + 1}/{cfg['epochs']}"
-        )
+        print(f"Fold {fold} | Epoch {epoch + 1}/{cfg['epochs']}")
         print("=" * 60)
 
         if device.type == "cuda":
@@ -192,7 +222,6 @@ def run_fold(
         )
 
         if should_run_full_validation:
-
             (
                 full_mean_dice,
                 full_class_dice,
@@ -206,9 +235,7 @@ def run_fold(
                 stride=cfg["stride"],
                 threshold=cfg["threshold"]
             )
-
         else:
-
             full_mean_dice = None
             full_class_dice = None
             full_class_counts = None
@@ -228,53 +255,28 @@ def run_fold(
             print("Full Dice:       not evaluated")
 
         print(f"LR:              {lr:.8f}")
-        print(
-            f"Valid Structures:"
-            f" {sum(c > 0 for c in patch_class_counts)}/25"
-        )
+
+        valid_structures = sum(c > 0 for c in patch_class_counts)
+
+        print(f"Valid Structures: {valid_structures}/25")
 
         if device.type == "cuda":
-            peak_mem = (
-                torch.cuda.max_memory_allocated()
-                / 1024**3
-            )
+            peak_mem = torch.cuda.max_memory_allocated() / 1024**3
             print(f"Peak GPU Memory: {peak_mem:.2f} GB")
         else:
             peak_mem = None
 
-        writer.add_scalar(
-            "loss/train",
-            train_loss,
-            epoch
-        )
-
-        writer.add_scalar(
-            "loss/patch_val",
-            patch_val_loss,
-            epoch
-        )
-
-        writer.add_scalar(
-            "dice/patch_val",
-            patch_mean_dice,
-            epoch
-        )
-
-        writer.add_scalar(
-            "lr",
-            lr,
-            epoch
-        )
+        writer.add_scalar("loss/train", train_loss, epoch)
+        writer.add_scalar("loss/patch_val", patch_val_loss, epoch)
+        writer.add_scalar("dice/patch_val", patch_mean_dice, epoch)
+        writer.add_scalar("lr", lr, epoch)
 
         if full_mean_dice is not None:
-            writer.add_scalar(
-                "dice/full_val",
-                full_mean_dice,
-                epoch
-            )
+            writer.add_scalar("dice/full_val", full_mean_dice, epoch)
 
         metrics = {
             "experiment_name": cfg["experiment_name"],
+            "loss_name": cfg.get("loss_name", "unknown"),
             "fold": fold,
             "epoch": epoch + 1,
             "train_loss": train_loss,
@@ -294,7 +296,6 @@ def run_fold(
             metrics[f"patch_{name}_count"] = int(count)
 
         if full_class_dice is not None:
-
             for name, score, count in zip(
                 STRUCTURES,
                 full_class_dice,
@@ -319,6 +320,11 @@ def run_fold(
             best_score = checkpoint_score
             best_epoch = epoch + 1
 
+            print(
+                f"\n✓ Fold {fold} | New Best Full Dice = {best_score:.4f} "
+                f"(Epoch {epoch + 1}) --> Saving best_model.pt"
+            )
+
             save_checkpoint(
                 path=checkpoint_dir / "best_model.pt",
                 fold=fold,
@@ -331,16 +337,14 @@ def run_fold(
                 full_mean_dice=full_mean_dice
             )
 
-            print(
-                f"Saved best model: "
-                f"{checkpoint_score:.4f}"
-            )
+        checkpoint_every = cfg.get("checkpoint_every", 0)
 
-        if (epoch + 1) % cfg["checkpoint_every"] == 0:
-
+        if (
+            checkpoint_every > 0
+            and (epoch + 1) % checkpoint_every == 0
+        ):
             save_checkpoint(
-                path=checkpoint_dir
-                / f"checkpoint_epoch_{epoch + 1:03d}.pt",
+                path=checkpoint_dir / f"checkpoint_epoch_{epoch + 1:03d}.pt",
                 fold=fold,
                 epoch=epoch,
                 model=model,
@@ -356,7 +360,8 @@ def run_fold(
     fold_summary = {
         "fold": fold,
         "best_score": best_score,
-        "best_epoch": best_epoch
+        "best_epoch": best_epoch,
+        "output_dir": str(output_dir)
     }
 
     save_json(
@@ -364,9 +369,8 @@ def run_fold(
         output_dir / "fold_summary.json"
     )
 
-    archive_fold(
-        output_dir
-    )
+    if cfg.get("archive_each_fold", False):
+        archive_fold(output_dir)
 
     return fold_summary
 
@@ -383,30 +387,19 @@ def main():
 
     args = parser.parse_args()
 
-    cfg = load_config(
-        args.config
-    )
+    cfg = load_config(args.config)
 
     seed_everything(42)
 
-    output_root = Path(
-        cfg["output_root"]
-    )
-
-    output_root.mkdir(
-        parents=True,
-        exist_ok=True
-    )
+    output_root = Path(cfg["output_root"])
+    output_root.mkdir(parents=True, exist_ok=True)
 
     save_json(
         cfg,
         output_root / "config_used.json"
     )
 
-    meta = Metadata(
-        cfg["metadata_csv"]
-    )
-
+    meta = Metadata(cfg["metadata_csv"])
     df = meta.dataframe()
 
     splitter = FishSplitter(
@@ -417,6 +410,24 @@ def main():
 
     for fold, train_idx, valid_idx in splitter.split(df):
 
+        output_dir = output_root / f"fold_{fold}"
+
+        if fold_is_complete(output_dir):
+
+            print(
+                f"\n✓ Fold {fold} already complete. Skipping."
+            )
+
+            summary = load_fold_summary(output_dir)
+            summaries.append(summary)
+
+            save_json(
+                summaries,
+                output_root / "cv_summary.json"
+            )
+
+            continue
+
         summary = run_fold(
             fold=fold,
             train_idx=train_idx,
@@ -424,9 +435,7 @@ def main():
             cfg=cfg
         )
 
-        summaries.append(
-            summary
-        )
+        summaries.append(summary)
 
         save_json(
             summaries,
@@ -440,6 +449,7 @@ def main():
 
     final_summary = {
         "experiment_name": cfg["experiment_name"],
+        "loss_name": cfg.get("loss_name", "unknown"),
         "fold_scores": scores,
         "mean_score": sum(scores) / len(scores),
         "fold_summaries": summaries
