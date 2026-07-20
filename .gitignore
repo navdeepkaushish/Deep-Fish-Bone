@@ -16,8 +16,18 @@ fish-bone/
 *.pth
 
 ventral/
-ventral.zipventral/
+outputs_dataset_statistics/
+outputs_nested_cv_bce_dice/
+Missing_Structures/
+analysis/
+paper_results/
+output_cv_bce_dice/
+output_cv_focal/
+outputs*/
+ventral/
 ventral.zip
 outputs/
 *.pt
 *.pth
+*.zip
+*.tex
