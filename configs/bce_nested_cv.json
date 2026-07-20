@@ -7,7 +7,7 @@
   "n_outer_splits": 5,
   "inner_val_fraction": 0.15,
   "seed": 42,
-  "epochs": 1,
+  "epochs": 100,
   "batch_size": 2,
   "num_workers": 6,
   "full_valid_workers": 4,
