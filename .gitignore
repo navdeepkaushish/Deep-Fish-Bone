@@ -14,8 +14,7 @@ fish-bone/
 
 *.pt
 *.pth
-
-ventral/
+manuscript/
 outputs_dataset_statistics/
 outputs_nested_cv_bce_dice/
 Missing_Structures/
@@ -31,3 +30,9 @@ outputs/
 *.pth
 *.zip
 *.tex
+*.png
+*.tif
+image_comparison_results/
+datasets/v2/
+engine/v2/
+new_outputs_311/

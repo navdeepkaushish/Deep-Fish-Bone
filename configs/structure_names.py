@@ -5,20 +5,20 @@ STRUCTURES = [
     "Br2a",
     "Br2b",
 
-    "CB1",
-    "CB2",
+    "Cb1",
+    "Cb2",
 
-    "CH1",
-    "CH2",
+    "Ch1",
+    "Ch2",
 
-    "CL1",
-    "CL2",
+    "Cl1",
+    "Cl2",
 
     "D1",
     "D2",
 
-    "EN1",
-    "EN2",
+    "En1",
+    "En2",
 
     "Hm1",
     "Hm2",
