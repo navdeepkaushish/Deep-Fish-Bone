@@ -91,13 +91,12 @@ Canonical metadata: `metadata/metadata.csv`
 
 Exact fish-level evaluation partitions: `metadata/final_cv_190/`
 
-**Zenodo dataset:** DOI/link will be added after deposition.
+**Dataset DOI:** 10.5281/zenodo.23125004.
+**Model checkpoints DOI** DOI: 10.5281/zenodo.23126017
 
 ## Trained Models
 
 The model release contains 15 checkpoints: five Baseline, five Anatomy-aware, and five Class-specific Br2 checkpoints corresponding to the five evaluation rotations.
-
-**Zenodo trained models:** DOI/link will be added after deposition.
 
 ## Installation
 
@@ -135,19 +134,6 @@ Br2 structure-presence table:
 ```bash
 python analysis/table5_br2_presence.py
 ```
-
-`engine/evaluate_canonical_final.py` was used to reevaluate the frozen trained checkpoints against the finalized canonical annotations without retraining.
-
-## Data and Model Availability
-
-GitHub provides the source code, final configurations, canonical metadata, exact evaluation splits, analysis and visualization scripts, lightweight evaluation results, and generated manuscript tables and figures.
-
-Two larger research artifacts are distributed separately through Zenodo:
-
-1. **Dataset record** — microscopy images, anatomical masks, supporting full-body masks, and dataset documentation.
-2. **Model record** — 15 final checkpoints with associated configurations, split information, and evaluation metadata.
-
-Zenodo DOI links will be added after the records are finalized.
 
 ## Citation
 
