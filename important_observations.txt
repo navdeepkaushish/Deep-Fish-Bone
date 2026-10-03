@@ -1,5 +1,0 @@
-check in CB1 in Missing_Structure folder: Tail parts are blurry but front part are clear
-163436010: Imageing artifects
-503015236: CH1, CH2 blurred
-503027952: imaging artifects
-163446668: Visible and solid image artifects

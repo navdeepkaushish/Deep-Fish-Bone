@@ -1,0 +1,12 @@
+{
+  "experiment": "baseline_dice_focal",
+  "fold": 0,
+  "checkpoint": "outputs/baseline_dice_focal/fold_0/checkpoints/best_model.pt",
+  "checkpoint_epoch_zero_based": 159,
+  "best_epoch": 160,
+  "best_validation_dice": 0.7813036849641439,
+  "test_mean_dice": 0.8097043250036772,
+  "n_test_images": 38,
+  "evaluation_only": true,
+  "canonical_ground_truth": true
+}

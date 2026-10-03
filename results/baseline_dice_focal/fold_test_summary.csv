@@ -1,0 +1,6 @@
+experiment,fold,checkpoint,checkpoint_epoch_zero_based,best_epoch,best_validation_dice,test_mean_dice,n_test_images,evaluation_only,canonical_ground_truth
+baseline_dice_focal,0,outputs/baseline_dice_focal/fold_0/checkpoints/best_model.pt,159,160,0.7813036849641439,0.8097043250036772,38,True,True
+baseline_dice_focal,1,outputs/baseline_dice_focal/fold_1/checkpoints/best_model.pt,135,136,0.8238715454433603,0.7776234166250566,37,True,True
+baseline_dice_focal,2,outputs/baseline_dice_focal/fold_2/checkpoints/best_model.pt,117,118,0.8310567715362321,0.8059384512797314,38,True,True
+baseline_dice_focal,3,outputs/baseline_dice_focal/fold_3/checkpoints/best_model.pt,130,131,0.7869610727019904,0.8232601328819187,39,True,True
+baseline_dice_focal,4,outputs/baseline_dice_focal/fold_4/checkpoints/best_model.pt,107,108,0.8098989375433422,0.7857079606390661,38,True,True

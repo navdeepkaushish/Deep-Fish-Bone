@@ -1,38 +1,65 @@
+# Python
 __pycache__/
-*.pyc
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
 
-outputs/
-logs/
-runs/
-
-.ipynb_checkpoints/
-
-.DS_Store
-
+# Virtual environments
 venv/
+.venv/
+env/
 fish-bone/
 
+# IDE / OS
+.DS_Store
+.spyproject/
+.vscode/
+.idea/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Training outputs and logs
+outputs/
+outputs*/
+logs/
+runs/
+new_outputs_*/
+output_cv_*/
+outputs_nested_cv_*/
+
+# Model checkpoints
 *.pt
 *.pth
-manuscript/
-outputs_dataset_statistics/
-outputs_nested_cv_bce_dice/
-Missing_Structures/
-analysis/
-paper_results/
-output_cv_bce_dice/
-output_cv_focal/
-outputs*/
+*.ckpt
+
+# Dataset - distributed separately via Zenodo
 ventral/
 ventral.zip
-outputs/
-*.pt
-*.pth
-*.zip
-*.tex
-*.png
-*.tif
-image_comparison_results/
 datasets/v2/
+Missing_Structures/
+
+# Temporary/local material
+manuscript/
+image_comparison_results/
+compression_and_copy_report.csv
+
+# Archives
+*.zip
+*.tar
+*.tar.gz
+
+# Local development variants
 engine/v2/
-new_outputs_311/
+
+# Historical / audit-only evaluation artifacts
+results_HISTORICAL_65_68/
+canonical_63_67_evaluation.log
+
+# macOS metadata
+.DS_Store
+**/.DS_Store
+figures/figure2_annotated_anatomy_525406624.png

@@ -1,0 +1,8 @@
+,n_records,n_records,n_records,n_fish,n_fish,n_fish
+split,test,train,val,test,train,val
+fold,,,,,,
+1,38,115,37,7,21,6
+2,37,115,38,6,21,7
+3,38,113,39,7,20,7
+4,39,113,38,7,20,7
+5,38,114,38,7,20,7

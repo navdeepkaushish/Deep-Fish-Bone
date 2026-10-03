@@ -1,0 +1,185 @@
+{
+  "dataset_root": "/Users/navdeepkaushish/Documents/missing_bone_structures/latest_experiments/deep-fish-bone/ventral",
+  "number_of_images": 190,
+  "number_of_structures": 25,
+  "relative_area_definition": "100 * foreground mask pixels / pixels in the corresponding original image",
+  "area_statistics_include_absent_masks": false,
+  "cv_definition": "sample standard deviation of present-mask relative areas divided by their mean",
+  "structures": {
+    "Br1a": {
+      "occurrence_count": 190,
+      "occurrence_percentage": 100.0,
+      "mean_relative_area_percentage": 0.08723367966229374,
+      "coefficient_of_variation": 0.3494922185234825,
+      "number_of_present_masks_used_for_area": 190
+    },
+    "Br1b": {
+      "occurrence_count": 190,
+      "occurrence_percentage": 100.0,
+      "mean_relative_area_percentage": 0.08333857869085352,
+      "coefficient_of_variation": 0.3286583224488031,
+      "number_of_present_masks_used_for_area": 190
+    },
+    "Br2a": {
+      "occurrence_count": 63,
+      "occurrence_percentage": 33.1578947368421,
+      "mean_relative_area_percentage": 0.02569557093398766,
+      "coefficient_of_variation": 0.5118934252454598,
+      "number_of_present_masks_used_for_area": 63
+    },
+    "Br2b": {
+      "occurrence_count": 67,
+      "occurrence_percentage": 35.26315789473684,
+      "mean_relative_area_percentage": 0.027652908636862754,
+      "coefficient_of_variation": 0.5178908203700233,
+      "number_of_present_masks_used_for_area": 67
+    },
+    "CB1": {
+      "occurrence_count": 187,
+      "occurrence_percentage": 98.42105263157895,
+      "mean_relative_area_percentage": 0.18668330452992338,
+      "coefficient_of_variation": 0.2078627686124139,
+      "number_of_present_masks_used_for_area": 187
+    },
+    "CB2": {
+      "occurrence_count": 186,
+      "occurrence_percentage": 97.89473684210527,
+      "mean_relative_area_percentage": 0.18513050889807314,
+      "coefficient_of_variation": 0.1946020735533383,
+      "number_of_present_masks_used_for_area": 186
+    },
+    "CH1": {
+      "occurrence_count": 185,
+      "occurrence_percentage": 97.36842105263158,
+      "mean_relative_area_percentage": 0.08705168702130625,
+      "coefficient_of_variation": 0.27557148244419377,
+      "number_of_present_masks_used_for_area": 185
+    },
+    "CH2": {
+      "occurrence_count": 185,
+      "occurrence_percentage": 97.36842105263158,
+      "mean_relative_area_percentage": 0.08688225328449471,
+      "coefficient_of_variation": 0.27185767883951173,
+      "number_of_present_masks_used_for_area": 185
+    },
+    "CL1": {
+      "occurrence_count": 187,
+      "occurrence_percentage": 98.42105263157895,
+      "mean_relative_area_percentage": 0.13563371301433444,
+      "coefficient_of_variation": 0.3566783511213773,
+      "number_of_present_masks_used_for_area": 187
+    },
+    "CL2": {
+      "occurrence_count": 188,
+      "occurrence_percentage": 98.94736842105263,
+      "mean_relative_area_percentage": 0.1397860103298046,
+      "coefficient_of_variation": 0.33742616342480236,
+      "number_of_present_masks_used_for_area": 188
+    },
+    "D1": {
+      "occurrence_count": 190,
+      "occurrence_percentage": 100.0,
+      "mean_relative_area_percentage": 0.04955456339336053,
+      "coefficient_of_variation": 0.4523900146353877,
+      "number_of_present_masks_used_for_area": 190
+    },
+    "D2": {
+      "occurrence_count": 190,
+      "occurrence_percentage": 100.0,
+      "mean_relative_area_percentage": 0.049238044138160686,
+      "coefficient_of_variation": 0.411237697254773,
+      "number_of_present_masks_used_for_area": 190
+    },
+    "EN1": {
+      "occurrence_count": 190,
+      "occurrence_percentage": 100.0,
+      "mean_relative_area_percentage": 0.09394562222461368,
+      "coefficient_of_variation": 0.39045044349214764,
+      "number_of_present_masks_used_for_area": 190
+    },
+    "EN2": {
+      "occurrence_count": 190,
+      "occurrence_percentage": 100.0,
+      "mean_relative_area_percentage": 0.1040902071205559,
+      "coefficient_of_variation": 0.40651646941933506,
+      "number_of_present_masks_used_for_area": 190
+    },
+    "Hm1": {
+      "occurrence_count": 190,
+      "occurrence_percentage": 100.0,
+      "mean_relative_area_percentage": 0.07240592112877388,
+      "coefficient_of_variation": 0.2483709706412841,
+      "number_of_present_masks_used_for_area": 190
+    },
+    "Hm2": {
+      "occurrence_count": 190,
+      "occurrence_percentage": 100.0,
+      "mean_relative_area_percentage": 0.07472752059733455,
+      "coefficient_of_variation": 0.2355283612964548,
+      "number_of_present_masks_used_for_area": 190
+    },
+    "M1": {
+      "occurrence_count": 180,
+      "occurrence_percentage": 94.73684210526315,
+      "mean_relative_area_percentage": 0.018655553483733336,
+      "coefficient_of_variation": 0.4271387038885167,
+      "number_of_present_masks_used_for_area": 180
+    },
+    "M2": {
+      "occurrence_count": 185,
+      "occurrence_percentage": 97.36842105263158,
+      "mean_relative_area_percentage": 0.018472838989987247,
+      "coefficient_of_variation": 0.4381182357105871,
+      "number_of_present_masks_used_for_area": 185
+    },
+    "N": {
+      "occurrence_count": 190,
+      "occurrence_percentage": 100.0,
+      "mean_relative_area_percentage": 0.45505686728974754,
+      "coefficient_of_variation": 0.2375425192800208,
+      "number_of_present_masks_used_for_area": 190
+    },
+    "Oc1": {
+      "occurrence_count": 158,
+      "occurrence_percentage": 83.15789473684211,
+      "mean_relative_area_percentage": 0.07533158809215343,
+      "coefficient_of_variation": 0.3953877258446784,
+      "number_of_present_masks_used_for_area": 158
+    },
+    "Oc2": {
+      "occurrence_count": 154,
+      "occurrence_percentage": 81.05263157894737,
+      "mean_relative_area_percentage": 0.07592387880691766,
+      "coefficient_of_variation": 0.40153510837053186,
+      "number_of_present_masks_used_for_area": 154
+    },
+    "Op1": {
+      "occurrence_count": 190,
+      "occurrence_percentage": 100.0,
+      "mean_relative_area_percentage": 0.12895288450670286,
+      "coefficient_of_variation": 0.358594287403269,
+      "number_of_present_masks_used_for_area": 190
+    },
+    "Op2": {
+      "occurrence_count": 190,
+      "occurrence_percentage": 100.0,
+      "mean_relative_area_percentage": 0.12664133158984417,
+      "coefficient_of_variation": 0.3064454031883785,
+      "number_of_present_masks_used_for_area": 190
+    },
+    "P": {
+      "occurrence_count": 190,
+      "occurrence_percentage": 100.0,
+      "mean_relative_area_percentage": 0.6853135742407598,
+      "coefficient_of_variation": 0.21332092702670716,
+      "number_of_present_masks_used_for_area": 190
+    },
+    "VC": {
+      "occurrence_count": 190,
+      "occurrence_percentage": 100.0,
+      "mean_relative_area_percentage": 0.45812381514141826,
+      "coefficient_of_variation": 0.42348270968627433,
+      "number_of_present_masks_used_for_area": 190
+    }
+  }
+}

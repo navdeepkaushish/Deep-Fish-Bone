@@ -1,0 +1,6 @@
+experiment,fold,checkpoint,checkpoint_epoch_zero_based,best_epoch,best_validation_dice,test_mean_dice,n_test_images,evaluation_only,canonical_ground_truth
+anatomy_aware_dice_focal,0,outputs/anatomy_aware_dice_focal/fold_0/checkpoints/best_model.pt,126,127,0.7875899244671737,0.8076348698916598,38,True,True
+anatomy_aware_dice_focal,1,outputs/anatomy_aware_dice_focal/fold_1/checkpoints/best_model.pt,177,178,0.8246032840468877,0.7836552634110635,37,True,True
+anatomy_aware_dice_focal,2,outputs/anatomy_aware_dice_focal/fold_2/checkpoints/best_model.pt,132,133,0.8290140002523216,0.8252500575530302,38,True,True
+anatomy_aware_dice_focal,3,outputs/anatomy_aware_dice_focal/fold_3/checkpoints/best_model.pt,95,96,0.7986197736530753,0.8273451512523701,39,True,True
+anatomy_aware_dice_focal,4,outputs/anatomy_aware_dice_focal/fold_4/checkpoints/best_model.pt,196,197,0.8173014349334504,0.7923436370988856,38,True,True

@@ -1,0 +1,53 @@
+\begin{table}[htbp]
+\centering
+\caption{Structure-presence identification performance for Br2a and Br2b across the three experimental configurations. TP, FP, and FN denote pooled true-positive, false-positive, and false-negative presence predictions across the five independent fish-level test folds. Precision, recall, and F1 are presence-detection metrics.}
+\label{tab:br2_presence}
+\small
+\begin{tabularx}{\textwidth}{llrrrrrr}
+\hline
+\textbf{Structure} &
+\textbf{Configuration} &
+\textbf{TP} &
+\textbf{FP} &
+\textbf{FN} &
+\textbf{Precision} &
+\textbf{Recall} &
+\textbf{F1} \\
+\hline
+
+Br2a &
+Baseline Dice+Focal &
+58 & 68 & 5 &
+0.460 & 0.921 & 0.614 \\
+
+ &
+Anatomy-aware Dice+Focal &
+60 & 67 & \textbf{3} &
+0.472 & \textbf{0.952} & 0.632 \\
+
+ &
+Class-specific Br2 &
+51 & \textbf{22} & 12 &
+\textbf{0.699} & 0.810 & \textbf{0.750} \\
+
+\hline
+
+Br2b &
+Baseline Dice+Focal &
+63 & 95 & \textbf{4} &
+0.399 & \textbf{0.940} & 0.560 \\
+
+ &
+Anatomy-aware Dice+Focal &
+63 & 86 & \textbf{4} &
+0.423 & \textbf{0.940} & 0.583 \\
+
+ &
+Class-specific Br2 &
+57 & \textbf{24} & 10 &
+\textbf{0.704} & 0.851 & \textbf{0.770} \\
+
+\hline
+
+\end{tabularx}
+\end{table}

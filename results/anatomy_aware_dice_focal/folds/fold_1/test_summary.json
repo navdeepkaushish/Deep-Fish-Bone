@@ -1,0 +1,12 @@
+{
+  "experiment": "anatomy_aware_dice_focal",
+  "fold": 1,
+  "checkpoint": "outputs/anatomy_aware_dice_focal/fold_1/checkpoints/best_model.pt",
+  "checkpoint_epoch_zero_based": 177,
+  "best_epoch": 178,
+  "best_validation_dice": 0.8246032840468877,
+  "test_mean_dice": 0.7836552634110635,
+  "n_test_images": 37,
+  "evaluation_only": true,
+  "canonical_ground_truth": true
+}

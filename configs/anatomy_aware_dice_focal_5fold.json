@@ -1,0 +1,46 @@
+{
+  "experiment_name": "AnatomyAware_DiceFocal_5Fold",
+  "loss_name": "focal_dice",
+  "root_dir": "ventral",
+  "metadata_csv": "metadata/metadata.csv",
+  "baseline_manifest_root": "metadata/final_cv_190",
+  "output_root": "outputs/anatomy_aware_dice_focal",
+  "n_splits": 5,
+  "seed": 42,
+  "epochs": 200,
+  "batch_size": 2,
+  "num_workers": 6,
+  "full_valid_workers": 4,
+  "full_test_workers": 4,
+  "learning_rate": 0.0003,
+  "weight_decay": 0.0001,
+  "resize_to": [
+    966,
+    1288
+  ],
+  "patch_size": 512,
+  "stride": 256,
+  "threshold": 0.5,
+  "min_component_pixels": 25,
+  "full_validation_every": 1,
+  "save_all_test_predictions": true,
+  "rerun_completed_folds": false,
+  "clean_incomplete_fold": false,
+  "sampler": {
+    "enabled": true,
+    "target_structures": [
+      "Br2a",
+      "Br2b"
+    ],
+    "target_positive_prob": 0.3,
+    "target_hard_negative_prob": 0.3,
+    "general_foreground_prob": 0.3,
+    "random_prob": 0.1,
+    "centre_jitter": 64,
+    "samples_per_epoch": null,
+    "decoded_cache_size": 2,
+    "cache_dir": "metadata/anatomy_sampler_cache",
+    "force_rebuild_cache": false,
+    "seed": 42
+  }
+}

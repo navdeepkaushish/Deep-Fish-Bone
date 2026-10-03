@@ -1,0 +1,12 @@
+{
+  "experiment": "class_specific_br2",
+  "fold": 3,
+  "checkpoint": "outputs/class_specific_br2/fold_3/checkpoints/best_model.pt",
+  "checkpoint_epoch_zero_based": 111,
+  "best_epoch": 112,
+  "best_validation_dice": 0.7885569864815661,
+  "test_mean_dice": 0.8181723735922886,
+  "n_test_images": 39,
+  "evaluation_only": true,
+  "canonical_ground_truth": true
+}

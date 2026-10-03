@@ -1,0 +1,22 @@
+\begin{table}[htbp]
+\centering
+\caption{Fold-wise independent test segmentation performance for the baseline Dice+Focal, anatomy-aware Dice+Focal, and anatomy-aware class-specific Br2 loss configurations. Values represent mean full-image Dice for each fish-level test fold, with overall performance reported as mean $\pm$ standard deviation across the five folds.}
+\label{tab:overall_performance}
+
+\begin{tabularx}{\textwidth}{lXXX}
+\toprule
+\textbf{Fold} &
+\textbf{Baseline (Dice+Focal)} &
+\textbf{Anatomy-aware Dice+Focal} &
+\textbf{Class-specific Br2} \\
+\midrule
+1 & \textbf{0.8097} & 0.8076 & 0.8077 \\
+2 & 0.7776 & \textbf{0.7837} & 0.7700 \\
+3 & 0.8059 & \textbf{0.8253} & 0.8175 \\
+4 & 0.8233 & \textbf{0.8273} & 0.8182 \\
+5 & 0.7857 & \textbf{0.7923} & 0.7738 \\
+\midrule
+\textbf{Mean $\pm$ SD} & $0.8004 \pm 0.0185$ & \textbf{$0.8072 \pm 0.0194$} & $0.7974 \pm 0.0237$ \\
+\bottomrule
+\end{tabularx}
+\end{table}
